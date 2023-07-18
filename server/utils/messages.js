@@ -1,8 +1,8 @@
 const dayjs = require("dayjs");
 
-function formatMessage(name, text) {
+function formatMessage(user, text) {
   return {
-    name,
+    creator: user,
     text,
     time: dayjs(
       new Date(),

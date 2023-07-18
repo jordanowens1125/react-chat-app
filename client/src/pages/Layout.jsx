@@ -1,5 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import { useLogOut } from "../hooks/useLogOut";
+import useAuthContext from "../hooks/useAuthContext";
 
 const Layout = ({ theme, setTheme }) => {
   const changeTheme = () => {
@@ -17,9 +19,16 @@ const Layout = ({ theme, setTheme }) => {
     }
   };
 
+  const { signOut } = useLogOut();
+  const { user } = useAuthContext();
+
   return (
-    <div className="flex-col full-w vh aic overflow-hidden border">
-      {/* <nav >Layout</nav> */}
+    <div className="flex-col full-w vh overflow-hidden p-top-nav relative">
+      <nav>
+        Layout
+        {user && <img src={user?.photoURL} alt={user?.name} />}
+        <button onClick={() => signOut()}>Sign Out</button>
+      </nav>
       <Outlet />
     </div>
   );

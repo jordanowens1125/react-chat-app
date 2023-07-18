@@ -3,7 +3,7 @@ const ChatOption = ({ option, setChat }) => {
     <div className="chat-option">
       <img
         className="messageImg"
-        src={option.chatImage}
+        src={option.coverURL}
         alt={`${option.title} chat`}
       />
       <div className="flex-col">

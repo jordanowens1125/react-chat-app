@@ -1,6 +1,12 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
+const logger = require("morgan");
+require("dotenv").config({ path: "./config/.env" });
+const cookieParser = require("cookie-parser");
+const connectDB = require("./config/db");
+connectDB();
+
 const app = express();
 const server = http.createServer(app);
 
@@ -19,47 +25,60 @@ const io = require("socket.io")(server, {
   },
 });
 
-const botName = "ChatCord Bot";
+const botName = {
+  name: "ChatCord Bot",
+  photoURL:
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Ym90fGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60",
+};
 
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(logger("dev"));
+app.use(cookieParser());
+
+app.use("/auth", require("./routes/auth"));
+app.use("/users", require("./routes/users"));
+app.use("/chats", require("./routes/chats"));
+
 // Run when a connection happens
 io.on("connection", (socket) => {
   // Listen for room join
-  socket.on("joinChat", ({ name, chat }) => {
-    const user = userJoin(socket.id, name, chat);
-    socket.join(user.chat);
+  socket.on("joinChat", ({ user, chat }) => {
+    const member = userJoin(socket.id, user, chat);
+    socket.join(member.chat);
     // To other users who are already connected
     socket.broadcast
-      .to(user.chat)
+      .to(member.chat)
       .emit(
         "message",
-        formatMessage(botName, `${user.name} has joined the chat!`)
+        formatMessage(botName, `${member.user.name} has joined the chat!`)
       );
 
-    io.to(user.chat).emit("chatUsers", {
-      chat: user.chat,
-      users: getChatUsers(user.chat),
+    io.to(member.chat).emit("chatUsers", {
+      chat: member.chat,
+      users: getChatUsers(member.chat),
     });
   });
 
   // Listen for chat message
   socket.on("newMessage", (msg) => {
-    const user = getCurrentUser(socket.id);
-    if (user) {
-      io.emit("message", formatMessage(user?.name, msg));
+    const member = getCurrentUser(socket.id);
+    if (member) {
+      io.emit("message", formatMessage(member.user, msg));
     }
   });
 
   socket.on("disconnect", () => {
-    const user = userLeave(socket.id);
-    if (user) {
-      io.to(user.chat).emit(
+    const member = userLeave(socket.id);
+    if (member) {
+      io.to(member.chat).emit(
         "message",
-        formatMessage(botName, `${user?.name || "idk"} has left the chat!`)
+        formatMessage(botName, `${member?.name || "idk"} has left the chat!`)
       );
-      io.to(user.chat).emit("chatUsers", {
-        chat: user.chat,
-        users: getChatUsers(user.chat),
+      io.to(member.chat).emit("chatUsers", {
+        chat: member.chat,
+        users: getChatUsers(member.chat),
       });
     }
   });

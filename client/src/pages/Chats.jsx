@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import ChatOption from "../components/chatOption";
-import Message from "../components/message";
+import ChatOption from "../components/Chats/chatOption";
+import Message from "../components/Chats/message";
 import { io } from "socket.io-client";
+import useAuthContext from "../hooks/useAuthContext";
+import NewChat from "../components/Chats/NewChat";
+import api from "../api";
 
 const socket = io("http://localhost:8000", {
   reconnectionDelayMax: 10000,
@@ -14,36 +17,24 @@ const socket = io("http://localhost:8000", {
 });
 
 const Chat = () => {
-  const name = "Jordan";
-  const [chat, setChat] = useState("idk");
+  const [chat, setChat] = useState("");
   const [chats, setChats] = useState([]);
-  const [user, setUser] = useState({ name });
+  const { user } = useAuthContext();
   const [users, setUsers] = useState([]);
-  const [messages, setMessages] = useState([
-    {
-      text: "First test",
-      time: new Date().getTime(),
-      name: "Me who else",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
 
-  const [chatOptions, setChatOptions] = useState([
-    {
-      title: "Title",
-      time: new Date().getTime(),
-      lastMessage: "Last Message",
-      chatImage:
-        "https://images.unsplash.com/photo-1688902325229-f6f2ad06561d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=695&q=80",
-    },
-    {
-      title: "Title",
-      time: new Date().getTime(),
-      lastMessage: "Last Message",
-      chatImage:
-        "https://images.unsplash.com/photo-1688902325229-f6f2ad06561d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=695&q=80",
-    },
-  ]);
-
+  const [chatOptions, setChatOptions] = useState([]);
+  const goToBottom = () => {
+    focusOnInput();
+    const messages = document.getElementsByClassName("message");
+    const length = messages.length;
+    const el = length < 1 ? "" : messages[length - 1];
+    if (el !== "") {
+      el.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  };
   useEffect(() => {
     socket.on("message", (newMessage) => {
       setMessages(messages.concat(newMessage));
@@ -56,8 +47,21 @@ const Chat = () => {
   }, [messages, chat, user]);
 
   useEffect(() => {
-    socket.emit("joinChat", { name, chat });
-  }, [chat]);
+    socket.emit("joinChat", { user, chat });
+  }, [chat, user]);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      const valu = await api.chats.getChats(user);
+      const chatResults = [...valu.chats, ...valu.createdChats];
+      if (chatResults.length > 0) {
+        setChat(chatResults[0]);
+        setMessages(chatResults[0].messages)
+      }
+      setChatOptions(chatResults);
+    };
+    fetchChats();
+  }, [user]);
 
   const creatMessage = (e) => {
     e.preventDefault();
@@ -70,28 +74,22 @@ const Chat = () => {
 
   let lastSender = {};
 
-  const goToBottom = () => {
-    focusOnInput();
-    const messages = document.getElementsByClassName("message");
-    const length = messages.length;
-    const el = length < 1 ? "" : messages[length - 1];
-    if (el !== "") {
-      el.scrollIntoView({
-        behavior: "smooth",
-      });
-    }
-  };
-
   const focusOnInput = () => {
     const msgEl = document.getElementById("chat-input");
     msgEl.focus();
   };
 
+console.log(chat);
+
   return (
     <main>
       <section className="chat-page">
         <div className="chat-selection-sidebar">
-          <p className="chat-selection-heading theme-text">Chats</p>
+          <div className="chat-selection-heading theme-text">
+            <p>Chats</p>
+            <NewChat />
+          </div>
+
           <div className="chat-selection-options">
             {chatOptions.map((option, index) => {
               return <ChatOption option={option} key={index} />;
@@ -109,7 +107,7 @@ const Chat = () => {
             {messages.map((message, index) => {
               return (
                 <div key={index}>
-                  <Message message={message} />
+                  <Message message={message} user={user} />
                 </div>
               );
             })}

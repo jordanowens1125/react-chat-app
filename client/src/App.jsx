@@ -6,14 +6,15 @@ import RequireAuth from "./components/ProtectedRoutes/RequireAuth";
 import Chats from "./pages/Chats";
 import NoPage from "./pages/NoPage";
 import SignedOut from "./components/ProtectedRoutes/SignedOut";
-import SignIn from './pages/SignIn'
+import SignIn from "./pages/SignIn";
+import Profile from "./pages/Profile";
 
 function App() {
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "light-mode"
   );
   return (
-    <main className={theme} id="App" >
+    <main className={theme} id="App">
       <BrowserRouter>
         <Routes>
           <Route
@@ -21,18 +22,21 @@ function App() {
             element={<Layout theme={theme} setTheme={setTheme} />}
           >
             {/*We want to protect these routes */}
-            {/* <Route element={<RequireAuth />}> */}
-              {/* <Route path="settings" element={<Settings />} /> */}
+            <Route element={<RequireAuth />}>
               <Route index element={<Chats />} />
 
+              <Route path="profile" element={<Profile />} />
+
+              {/* <Route path="settings" element={<Settings />} /> */}
+
               <Route path="*" element={<NoPage />} />
-            {/* </Route> */}
+            </Route>
 
             {/*public routes */}
-            <Route element={<SignedOut />}>
-              <Route path="signin" element={<SignIn />} />
-              {/* <Route path="signup" element={<SignUp />} /> */}
-            </Route>
+          </Route>
+          <Route element={<SignedOut />}>
+            <Route path="signin" element={<SignIn />} />
+            {/* <Route path="signup" element={<SignUp />} /> */}
           </Route>
           {/*catch all */}
           <Route path="*" element={<NoPage />} />

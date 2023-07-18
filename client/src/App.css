@@ -10,6 +10,12 @@
 
 body {
   height: 100vh;
+  --nav-height: 60px;
+  --bg-color: pink;
+}
+
+.relative {
+  position: relative;
 }
 
 main {
@@ -20,9 +26,21 @@ main {
 }
 
 nav {
-  height: 50px;
-  padding: 10px 5px;
+  height: var(--nav-height);
   max-width: 1600px;
+  z-index: 5;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+nav img {
+  height: 55px;
+  width: 55px;
+  border-radius: 50%;
 }
 
 section {
@@ -41,7 +59,9 @@ a {
 }
 
 /* Padding */
-
+.p-top-nav {
+  padding-top: var(--nav-height);
+}
 /* End of padding */
 
 .overflow-hidden {
@@ -68,6 +88,7 @@ a {
 .flex-col {
   display: flex;
   flex-direction: column;
+  gap: 5px;
 }
 
 .gap0 {
@@ -231,6 +252,67 @@ a {
 .message.own .messageText {
   color: #fff;
   background: linear-gradient(10deg, mediumpurple, aquamarine);
+}
+
+/* Create New Chat */
+.member_option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+}
+.member_option:hover{
+  background-color: rgb(215, 232, 238);
+  cursor: pointer;
+}
+
+.selected{
+  background-color: lightblue;
+}
+
+.selected:hover{
+  background-color: lightblue;
+}
+
+.member_option img {
+  height: 45px;
+  width: 45px;
+  border-radius: 50%;
+}
+
+/* End of Create new Chat */
+
+/* Modal styling */
+.modal {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w*/
+  padding: 10px;
+  z-index: 999;
+}
+
+.modal-content {
+  /* background-color: var(--light-bg-color); */
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  width: 97vw;
+  height: 99vh;
+  border-radius: 0.3rem;
+  overflow-y: auto;
+  position: fixed;
+  overflow-x: hidden;
+  /* top: 50%;
+  left: 50%; */
 }
 
 /*  */

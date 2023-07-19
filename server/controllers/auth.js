@@ -23,7 +23,7 @@ const loginUser = async (req, res) => {
       photoURL: user.photoURL,
     });
   } catch (error) {
-    
+    console.log(error);
     res.status(400).json({ message: error.message });
   }
 };

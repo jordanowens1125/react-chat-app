@@ -12,10 +12,11 @@ const UserSchema = new Schema({
     select: false,
   },
   chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
-  createdChats: [{type: Schema.Types.ObjectId, ref: "Chat"}],
+  createdChats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
   //profile image
   photoURL: { type: String },
   joinedDate: { type: Date, default: Date.now() },
+  messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
 });
 
 //making a static signup method

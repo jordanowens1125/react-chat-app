@@ -10,7 +10,7 @@ const message = ({ message, user }) => {
         />
         <div className="flex-col">
           <b className="message-sender">{message?.creator?.name}</b>
-          <p className="message-time">{message.time}</p>
+          <p className="message-time">{message.date}</p>
         </div>
       </div>
 

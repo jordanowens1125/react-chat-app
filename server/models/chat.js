@@ -11,6 +11,11 @@ const ChatSchema = new Schema({
   messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
   members: [{ type: Schema.Types.ObjectId, ref: "User" }],
   creator: { type: Schema.Types.ObjectId, ref: "User" },
+  date: { type: Date },
+  lastMessage: {
+    type: Schema.Types.ObjectId,
+    ref: "Message",
+  },
 });
 
 module.exports = mongoose.model("Chat", ChatSchema);

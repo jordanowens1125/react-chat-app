@@ -1,10 +1,9 @@
 const { default: mongoose } = require("mongoose");
 const Chat = require("../models/chat");
 const User = require("../models/user");
-const Message = require("../models/message")
+const Message = require("../models/message");
 
 const createChat = async (req, res) => {
-  console.log(req.body);
   try {
     const chat = await Chat.create(req.body);
     await User.updateMany(
@@ -36,14 +35,18 @@ const getChats = async (req, res) => {
       {
         path: "chats",
         populate: [{ path: "messages", populate: [{ path: "creator" }] }],
-      },{
+      },
+      {
         path: "createdChats",
         populate: [{ path: "messages", populate: [{ path: "creator" }] }],
       },
     ]);
-    res.status(200).json(chats);
+    if (chats) {
+      return res.status(200).json(chats);
+    } else {
+      return res.status(200).json({ chats: [], createdChats: [] });
+    }
   } catch (error) {
-    console.log(error);
     res.status(404).json({ message: error.message });
   }
 };

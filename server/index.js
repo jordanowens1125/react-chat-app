@@ -18,6 +18,9 @@ const {
 } = require("./utils/users");
 
 const formatMessage = require("./utils/messages");
+const Message = require("./models/message");
+const User = require("./models/user");
+const Chat = require("./models/chat");
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
@@ -47,13 +50,6 @@ io.on("connection", (socket) => {
   socket.on("joinChat", ({ user, chat }) => {
     const member = userJoin(socket.id, user, chat);
     socket.join(member.chat);
-    // To other users who are already connected
-    socket.broadcast
-      .to(member.chat)
-      .emit(
-        "message",
-        formatMessage(botName, `${member.user.name} has joined the chat!`)
-      );
 
     io.to(member.chat).emit("chatUsers", {
       chat: member.chat,
@@ -62,20 +58,39 @@ io.on("connection", (socket) => {
   });
 
   // Listen for chat message
-  socket.on("newMessage", (msg) => {
+  socket.on("newMessage", async (msg) => {
     const member = getCurrentUser(socket.id);
     if (member) {
-      io.emit("message", formatMessage(member.user, msg));
+      console.log(member);
+      io.to(member.chat).emit("message", formatMessage(member.user, msg));
+      const message = await Message.create({
+        text: msg,
+        date: new Date(),
+        chat: member.chat,
+        creator: member.user._id,
+      });
+
+      await User.findByIdAndUpdate(member.user._id, {
+        $push: {
+          messages: message._id,
+        },
+      });
+
+      await Chat.findByIdAndUpdate(member.chat, {
+        $push: {
+          messages: message._id,
+        },
+      });
     }
   });
 
   socket.on("disconnect", () => {
     const member = userLeave(socket.id);
     if (member) {
-      io.to(member.chat).emit(
-        "message",
-        formatMessage(botName, `${member?.name || "idk"} has left the chat!`)
-      );
+      // io.to(member.chat).emit(
+      //   "message",
+      //   formatMessage(botName, `${member?.name || "idk"} has left the chat!`)
+      // );
       io.to(member.chat).emit("chatUsers", {
         chat: member.chat,
         users: getChatUsers(member.chat),

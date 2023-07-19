@@ -2,7 +2,13 @@ const users = [];
 
 function userJoin(id, user, chat) {
   const member = { id, user, chat };
-  users.push(member);
+  const index = users.findIndex((user) => user.id === id);
+  if (index === -1) {
+    users.push(member);
+  } else {
+    users[index] = member;
+  }
+  // console.log(member);
   return member;
 }
 

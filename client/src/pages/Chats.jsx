@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ChatOption from "../components/Chats/chatOption";
+import ChatOption from "../components/Chats/ChatOption";
 import Message from "../components/Chats/message";
 import { io } from "socket.io-client";
 import useAuthContext from "../hooks/useAuthContext";
@@ -18,12 +18,12 @@ const socket = io("http://localhost:8000", {
 
 const Chat = () => {
   const [chat, setChat] = useState("");
-  const [chats, setChats] = useState([]);
   const { user } = useAuthContext();
   const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
 
   const [chatOptions, setChatOptions] = useState([]);
+
   const goToBottom = () => {
     focusOnInput();
     const messages = document.getElementsByClassName("message");
@@ -47,16 +47,19 @@ const Chat = () => {
   }, [messages, chat, user]);
 
   useEffect(() => {
-    socket.emit("joinChat", { user, chat });
+    console.log(123);
+    if (user && chat) {
+      socket.emit("joinChat", { user, chat: chat?._id });
+    }
   }, [chat, user]);
 
   useEffect(() => {
     const fetchChats = async () => {
-      const valu = await api.chats.getChats(user);
-      const chatResults = [...valu.chats, ...valu.createdChats];
+      const result = await api.chats.getChats(user);
+      const chatResults = [...result.chats, ...result.createdChats];
       if (chatResults.length > 0) {
         setChat(chatResults[0]);
-        setMessages(chatResults[0].messages)
+        setMessages(chatResults[0].messages);
       }
       setChatOptions(chatResults);
     };
@@ -65,6 +68,7 @@ const Chat = () => {
 
   const creatMessage = (e) => {
     e.preventDefault();
+    console.log(chat);
     const msgEl = document.getElementById("chat-input");
     const msg = msgEl.value;
     socket.emit("newMessage", msg);
@@ -79,7 +83,15 @@ const Chat = () => {
     msgEl.focus();
   };
 
-console.log(chat);
+  const switchChats = (chat) => {
+    console.log(chat);
+    setChat(chat);
+    if (chat.messages.length > 0) {
+      setMessages(chat.messages);
+    } else {
+      setMessages([]);
+    }
+  };
 
   return (
     <main>
@@ -92,7 +104,14 @@ console.log(chat);
 
           <div className="chat-selection-options">
             {chatOptions.map((option, index) => {
-              return <ChatOption option={option} key={index} />;
+              return (
+                <ChatOption
+                  option={option}
+                  key={index}
+                  handleClick={switchChats}
+                  chat={chat}
+                />
+              );
             })}
           </div>
         </div>

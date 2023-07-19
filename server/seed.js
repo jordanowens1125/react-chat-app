@@ -5,7 +5,8 @@ require("dotenv").config({ path: "./config/.env" });
 const connectDB = require("./config/db");
 const saltRounds = 10;
 const seedUsers = require("./seedFolder/users");
-
+const Chat = require("./models/chat");
+const Message = require('./models/message')
 
 const seedDB = async () => {
   try {
@@ -22,6 +23,10 @@ const seedDB = async () => {
     await connectDB();
     await User.deleteMany({});
     await User.insertMany(usersWithHashedPasswords);
+    await Chat.deleteMany({});
+    await Chat.insertMany([])
+    await Message.deleteMany({});
+    await Message.insertMany([]);
   } catch (err) {
     console.log(err);
   }

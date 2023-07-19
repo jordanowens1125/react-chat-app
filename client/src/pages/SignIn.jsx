@@ -20,6 +20,14 @@ const SignIn = () => {
     );
   };
 
+  const DemoLogin2 = async (e) => {
+    e.preventDefault();
+    await signIn(
+      process.env.REACT_APP_DEMO_EMAIL_2,
+      process.env.REACT_APP_DEMO_PASSWORD
+    );
+  };
+
   return (
     <form onSubmit={submit}>
       SignIn
@@ -39,6 +47,7 @@ const SignIn = () => {
         sign in
       </button>
       <button onClick={DemoLogin}>Sign In with Demo Account</button>
+      <button onClick={DemoLogin2}>Sign In with Demo Account 2</button>
     </form>
   );
 };

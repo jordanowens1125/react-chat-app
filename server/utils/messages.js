@@ -4,7 +4,7 @@ function formatMessage(user, text) {
   return {
     creator: user,
     text,
-    time: dayjs(
+    date: dayjs(
       new Date(),
       ["YYYY", "YYYY-MM-DD", "YYYY-MM-DD HH:mm:ss"],
       true
@@ -12,4 +12,4 @@ function formatMessage(user, text) {
   };
 }
 
-module.exports = formatMessage
+module.exports = formatMessage;
